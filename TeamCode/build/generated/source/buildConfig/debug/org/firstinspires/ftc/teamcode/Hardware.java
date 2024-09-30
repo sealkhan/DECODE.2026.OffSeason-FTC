@@ -12,8 +12,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.RobotLog;
-//hi
-//hello world!
+
 public abstract class Hardware extends LinearOpMode {
     BHI260IMU imu;
     DcMotorEx backLeft;

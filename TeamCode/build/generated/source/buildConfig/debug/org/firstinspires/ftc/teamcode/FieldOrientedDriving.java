@@ -7,8 +7,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-//hi
-//hello world?
+
 @TeleOp(name = "Field Oriented Driving")
 public class FieldOrientedDriving extends Hardware {
     public static double powerCurve(double power, boolean slowSpeed) {
