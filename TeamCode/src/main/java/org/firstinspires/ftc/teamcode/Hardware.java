@@ -19,6 +19,8 @@ public abstract class Hardware extends LinearOpMode {
     DcMotorEx frontLeft;
     DcMotorEx frontRight;
     DcMotorEx backRight;
+    DcMotorEx horizontalArm;
+
     //DcMotorEx armLeft;
 //    DcMotorEx armRight;
 //    DcMotorEx wrist;
@@ -35,6 +37,7 @@ public abstract class Hardware extends LinearOpMode {
         frontRight = (DcMotorEx) hardwareMap.dcMotor.get("FR");
         backLeft = (DcMotorEx) hardwareMap.dcMotor.get("BL");
         backRight = (DcMotorEx) hardwareMap.dcMotor.get("BR");
+        horizontalArm = (DcMotorEx) hardwareMap.dcMotor.get("horizontalArm");
 //        armRight = (DcMotorEx) hardwareMap.dcMotor.get("ArmRight");
 //        armLeft = (DcMotorEx) hardwareMap.dcMotor.get("ArmLeft");
 //        wrist = (DcMotorEx) hardwareMap.dcMotor.get("wrist");

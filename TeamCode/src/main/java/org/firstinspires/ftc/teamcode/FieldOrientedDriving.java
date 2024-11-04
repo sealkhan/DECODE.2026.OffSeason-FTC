@@ -63,6 +63,8 @@ public class FieldOrientedDriving extends Hardware {
             }
             previousX = x;
 
+
+
             // simple direct power to the arm motors
             // boolean antigravity = gamepad2.left_bumper; // when pressed, enable arm antigravity
 
@@ -125,6 +127,7 @@ public class FieldOrientedDriving extends Hardware {
                 }
 
 
+
                 double frontLeftPower = (rotY + rotX + leftStickX) / denominator;
                 double backLeftPower = (rotY - rotX + leftStickX) / denominator;
                 double frontRightPower = (rotY - rotX - leftStickX) / denominator;
@@ -150,11 +153,11 @@ public class FieldOrientedDriving extends Hardware {
             wristAngle = clamp(wristAngle + gamepad2.right_stick_y, 0.0, 195.0);
             clawAngle = clamp(clawAngle + gamepad2.right_stick_x / 70, 0.0, 1.0);
 
-            if (gamepad2.x) wristAngle = 195.0;
-            if (gamepad2.y) wristAngle = 60.0;
-            if (gamepad2.b) wristAngle = 0.0;
-            if (gamepad2.left_bumper) clawAngle = 0.50;
-            if (gamepad2.right_bumper) clawAngle = 0;
+            //if (gamepad2.x) wristAngle = 195.0;
+            //if (gamepad2.y) wristAngle = 60.0;
+            //if (gamepad2.b) wristAngle = 0.0;
+            //if (gamepad2.left_bumper) clawAngle = 0.50;
+            //if (gamepad2.right_bumper) clawAngle = 0;
 
             // adds to the telemetry which mode the robot is in
             if (emergencyDrive) {
@@ -165,6 +168,10 @@ public class FieldOrientedDriving extends Hardware {
 
             telemetry.addData("wristAngle", wristAngle);
             telemetry.addData("clawAngle", clawAngle);
+
+            if (gamepad2.x){
+                horizontalArm.setPower(0.1);
+            }
 
             // shows antigravity on telemetry
             if (antigravity) {
