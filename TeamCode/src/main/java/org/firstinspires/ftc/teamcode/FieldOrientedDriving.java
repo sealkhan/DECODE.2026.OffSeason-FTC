@@ -170,7 +170,7 @@ public class FieldOrientedDriving extends Hardware {
             telemetry.addData("clawAngle", clawAngle);
 
             if (gamepad2.x){
-                horizontalArm.setPower(0.1);
+                horizontalArm.setPower(-0.1);
             }
 
             // shows antigravity on telemetry

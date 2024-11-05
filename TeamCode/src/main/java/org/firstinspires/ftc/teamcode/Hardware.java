@@ -33,10 +33,10 @@ public abstract class Hardware extends LinearOpMode {
 
     public void initHardware() {
         // Initialize motors
-        frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FL");
-        frontRight = (DcMotorEx) hardwareMap.dcMotor.get("FR");
-        backLeft = (DcMotorEx) hardwareMap.dcMotor.get("BL");
-        backRight = (DcMotorEx) hardwareMap.dcMotor.get("BR");
+        frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("frontLeft");
+        frontRight = (DcMotorEx) hardwareMap.dcMotor.get("frontRight");
+        backLeft = (DcMotorEx) hardwareMap.dcMotor.get("backLeft");
+        backRight = (DcMotorEx) hardwareMap.dcMotor.get("backRight");
         horizontalArm = (DcMotorEx) hardwareMap.dcMotor.get("horizontalArm");
 //        armRight = (DcMotorEx) hardwareMap.dcMotor.get("ArmRight");
 //        armLeft = (DcMotorEx) hardwareMap.dcMotor.get("ArmLeft");
