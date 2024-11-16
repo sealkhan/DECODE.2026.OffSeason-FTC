@@ -17,6 +17,7 @@ public class FieldOrientedDriving extends Hardware {
         else
             return power / 3.0; // regular power
     }
+
     public static double armPowerCurve(double power) {
         final double clam = 2.8;
         double value = Math.pow(Math.abs(power), clam) * Math.signum(power);
@@ -25,6 +26,7 @@ public class FieldOrientedDriving extends Hardware {
         RobotLog.v("value: " + value);
         return value;
     }
+
 
     public void initArmMotorSimple(DcMotorEx motor) {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -64,11 +66,10 @@ public class FieldOrientedDriving extends Hardware {
             previousX = x;
 
 
-
             // simple direct power to the arm motors
             // boolean antigravity = gamepad2.left_bumper; // when pressed, enable arm antigravity
 
-            if (emergencyDrive){
+            if (emergencyDrive) {
                 // Y stick is reversed
 
                 float y = -gamepad1.right_stick_y;
@@ -85,9 +86,9 @@ public class FieldOrientedDriving extends Hardware {
                 // if you want to make the power smaller, then make the '2' higher
                 // if you want it stronger make it lower or remove the division by two
                 double dividedBy = 2;
-                if (gamepad1.right_bumper){
+                if (gamepad1.right_bumper) {
                     dividedBy = 0.5;
-                } else if (gamepad1.left_bumper){
+                } else if (gamepad1.left_bumper) {
                     dividedBy = 4;
                 }
 
@@ -125,7 +126,6 @@ public class FieldOrientedDriving extends Hardware {
                 if (gamepad1.right_bumper) {
                     denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(leftStickX), 1) / 2;
                 }
-
 
 
                 double frontLeftPower = (rotY + rotX + leftStickX) / denominator;
@@ -169,15 +169,50 @@ public class FieldOrientedDriving extends Hardware {
             telemetry.addData("wristAngle", wristAngle);
             telemetry.addData("clawAngle", clawAngle);
 
-            if (gamepad2.x){
-                horizontalArm.setPower(-0.1);
+            if (gamepad2.x) {
+                horizontalArm.setPower(-1.0);
             }
 
-            // shows antigravity on telemetry
-            if (antigravity) {
-                telemetry.addData("antigravity", "on");
+
+            // Define the power values for moving the arm
+            final double ARM_FORWARD_POWER = -0.5; //Power for moving the horizontalArm forward
+            final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm backward
+            // Boolean  conditions for joystick movement
+            // Set motor power based on conditions
+            if (gamepad2.left_stick_y < -0.1) {
+            horizontalArm.setPower(ARM_FORWARD_POWER);
+            telemetry.addData("horizontalArm ", ARM_FORWARD_POWER);
+             } else if (gamepad2.left_stick_y > 0.1) {
+            horizontalArm.setPower(ARM_BACKWARD_POWER);
+            telemetry.addData("horizontalArm ", ARM_BACKWARD_POWER);
+             } else {
+            horizontalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
+            telemetry.addData("horizontalArm ", "0");
             }
-            telemetry.update();
+
+            // Define the power values for moving the arm
+            //final double ARM_FORWARD_POWER = -5.0; // Power for moving the horizontalArm forward
+            //final double ARM_BACKWARD_POWER = 5.0;  // Power for moving the horizontalArm backward
+
+            // Set motor power based on joystick movement
+            //if (gamepad2.left_stick_y < -5.0) {
+            //horizontalArm.setPower(ARM_FORWARD_POWER);
+            //telemetry.addData("horizontalArm", "Moving Forward with power: " + ARM_FORWARD_POWER);
+            //} else if (gamepad2.left_stick_y > 5.0) {
+            //horizontalArm.setPower(ARM_BACKWARD_POWER);
+            //telemetry.addData("horizontalArm", "Moving Backward with power: " + ARM_BACKWARD_POWER);
+            //} else {
+            //horizontalArm.setPower(0); // Stop the arm if the joystick is in the neutral position
+            //telemetry.addData("horizontalArm", "Stopped");
+            //}
+
+            // Update telemetry data
+            //telemetry.addData("Joystick Y", gamepad2.left_stick_y);
+            //telemetry.update();
+
+            // shows antigravity on telemetry
+            //if (antigravity) {
+            //telemetry.addData("antigravity", "on");
         }
     }
 }

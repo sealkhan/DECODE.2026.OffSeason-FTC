@@ -37,7 +37,14 @@ public abstract class Hardware extends LinearOpMode {
         frontRight = (DcMotorEx) hardwareMap.dcMotor.get("frontRight");
         backLeft = (DcMotorEx) hardwareMap.dcMotor.get("backLeft");
         backRight = (DcMotorEx) hardwareMap.dcMotor.get("backRight");
-        horizontalArm = (DcMotorEx) hardwareMap.dcMotor.get("horizontalArm");
+        //horizontalArm = (DcMotorEx) hardwareMap.dcMotor.get("horizontalArm");
+        horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
+        //if (horizontalArm != null) {
+            //telemetry.addData("Initialization", "horizontalArm initialized successfully");
+        //} else {
+            //telemetry.addData("Initialization", "horizontalArm NOT initialized ");
+        //}
+        //telemetry.update();
 //        armRight = (DcMotorEx) hardwareMap.dcMotor.get("ArmRight");
 //        armLeft = (DcMotorEx) hardwareMap.dcMotor.get("ArmLeft");
 //        wrist = (DcMotorEx) hardwareMap.dcMotor.get("wrist");
@@ -53,6 +60,10 @@ public abstract class Hardware extends LinearOpMode {
         imu.initialize(parameters);
 
         backLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        //horizontalArm.setPower(-0.3);
+        //sleep(1000);
+        //horizontalArm.setPower(0);
 
 
 //        armLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -160,6 +171,11 @@ public abstract class Hardware extends LinearOpMode {
         backRight.setPower(power);
         backLeft.setPower(-power);
     }
+
+    // Define the power values for moving the arm
+    final double ARM_FORWARD_POWER = -0.5; //Power for moving the horizontalArm forward
+    final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm backward
+
 
     public static double clamp(double value, double min, double max) {
         if (value < min) return min;
