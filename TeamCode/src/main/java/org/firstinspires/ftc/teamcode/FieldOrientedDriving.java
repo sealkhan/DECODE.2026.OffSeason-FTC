@@ -175,8 +175,8 @@ public class FieldOrientedDriving extends Hardware {
 
 
             // Define the power values for moving the arm
-            final double ARM_FORWARD_POWER = -0.5; //Power for moving the horizontalArm forward
-            final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm backward
+            final double ARM_FORWARD_POWER = -0.2; //Power for moving the horizontalArm forward
+            final double ARM_BACKWARD_POWER = 0.2; //Power for moving the horizontalArm backward
             // Boolean  conditions for joystick movement
             // Set motor power based on conditions
             if (gamepad2.left_stick_y < -0.1) {
