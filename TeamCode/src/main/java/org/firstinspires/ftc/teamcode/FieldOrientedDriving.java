@@ -17,21 +17,13 @@ public class FieldOrientedDriving extends Hardware {
         else
             return power / 3.0; // regular power
     }
-    public static double armPowerCurve(double power) {
-        final double clam = 2.8;
-        double value = Math.pow(Math.abs(power), clam) * Math.signum(power);
-        value = Math.min(value, 0.95); // max lifting power 0.75
-        value = Math.max(value, -0.35); // limit down power to not more then 0.25 to avoid slamming the arm
-        RobotLog.v("value: " + value);
-        return value;
-    }
 
-    public void initArmMotorSimple(DcMotorEx motor) {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setPower(0.0);
-        motor.setTargetPosition(0);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    }
+//    public void initArmMotorSimple(DcMotorEx motor) {
+//        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        motor.setPower(0.0);
+//        motor.setTargetPosition(0);
+//        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//    }
 
     @Override
     public void runOpMode() {
@@ -40,21 +32,10 @@ public class FieldOrientedDriving extends Hardware {
         //initArmMotorSimple(armRight); // try directly controlling the arm motors with simple power
         //initArmMotorSimple(armLeft); // try directly controlling the arm motors with simple power
 
-        long previousTime = System.currentTimeMillis();
-        boolean previousG1X = false;
-        boolean previousG1Y = false;
-        boolean previousG2A = false;
         boolean previousX = false;
         boolean antigravity = false;
         boolean emergencyDrive = false; // activates arm motor control & gravity compensation
-        double wristAngle = 0.0; // moves to 0.0 when running
-        //PIDFCoefficients pid = new PIDFCoefficients(15.0, 0.005, 0.002, 0.0, MotorControlAlgorithm.LegacyPID);
-        //wrist.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, pid);
-        //telemetry.addData("Wrist PID set to ", pid);
-        double clawAngle = 0.0; // moves to 0.0 when running
         while (opModeIsActive()) {
-            // This is the gamepad API: https://ftctechnh.github.io/ftc_app/doc/javadoc/com/qualcomm/robotcore/hardware/Gamepad.html
-            // ditto
             boolean slowSpeed = gamepad1.left_bumper; // when pressed, slow down robot
             // X presses
             boolean x = gamepad1.x;
@@ -63,9 +44,7 @@ public class FieldOrientedDriving extends Hardware {
             }
             previousX = x;
 
-            // simple direct power to the arm motors
-            // boolean antigravity = gamepad2.left_bumper; // when pressed, enable arm antigravity
-
+            //EMERGENCY DRIVE AND FIELD ORIENTED
             if (emergencyDrive){
                 // Y stick is reversed
 
@@ -108,6 +87,7 @@ public class FieldOrientedDriving extends Hardware {
                 double leftStickX = powerCurve(gamepad1.left_stick_x, slowSpeed); // ditto
                 telemetry.addData("left stick x: ", gamepad1.left_stick_x);
                 telemetry.addData("thought left stick x: ", leftStickX);
+
                 // Read sensor data
                 YawPitchRollAngles robotOrientation = imu.getRobotYawPitchRollAngles();
                 double yaw = robotOrientation.getYaw(AngleUnit.RADIANS);
@@ -146,16 +126,6 @@ public class FieldOrientedDriving extends Hardware {
                 //addMotorTelemetry();
             }
 
-            // update the wrist and claw angles
-            wristAngle = clamp(wristAngle + gamepad2.right_stick_y, 0.0, 195.0);
-            clawAngle = clamp(clawAngle + gamepad2.right_stick_x / 70, 0.0, 1.0);
-
-            if (gamepad2.x) wristAngle = 195.0;
-            if (gamepad2.y) wristAngle = 60.0;
-            if (gamepad2.b) wristAngle = 0.0;
-            if (gamepad2.left_bumper) clawAngle = 0.50;
-            if (gamepad2.right_bumper) clawAngle = 0;
-
             // adds to the telemetry which mode the robot is in
             if (emergencyDrive) {
                 telemetry.addData("mode", "Emergency Driving");
@@ -163,13 +133,50 @@ public class FieldOrientedDriving extends Hardware {
                 telemetry.addData("mode", "Field Oriented Driving");
             }
 
-            telemetry.addData("wristAngle", wristAngle);
-            telemetry.addData("clawAngle", clawAngle);
-
-            // shows antigravity on telemetry
-            if (antigravity) {
-                telemetry.addData("antigravity", "on");
+            if (gamepad1.a){
+                top.setPosition(1);
+                telemetry.addData("top to position", top.getPosition());
+            } else if(gamepad1.b){
+                top.setPosition(0);
+                telemetry.addData("top to position", top.getPosition());
             }
+
+            boolean wristUp = true;
+
+            if (gamepad2.dpad_up){
+                wrist.setPosition(1);
+                telemetry.addData("wrist to position", wrist.getPosition());
+                wristUp = true;
+            } else if(gamepad2.dpad_down){
+                wrist.setPosition(0);
+                wristUp = false;
+                telemetry.addData("wrist to position", wrist.getPosition());
+            }
+
+            if (wristUp){
+                spintake.setPosition(0);
+            } else if (wristUp == false) {
+                double position = (gamepad2.right_stick_y + 1) / 2;  // maps -1 to 1 to 0 to 1
+                spintake.setPosition(position);
+                telemetry.addData("spintake to position", spintake.getPosition());
+            }
+
+            if (gamepad2.x) {
+                horizontalArm.setPower(-1.0);
+            }
+
+            // Set motor power based on conditions
+            if (gamepad2.left_stick_y < -0.1) {
+                horizontalArm.setPower(ARM_FORWARD_POWER);
+                telemetry.addData("horizontalArm ", ARM_FORWARD_POWER);
+            } else if (gamepad2.left_stick_y > 0.1) {
+                horizontalArm.setPower(ARM_BACKWARD_POWER);
+                telemetry.addData("horizontalArm ", ARM_BACKWARD_POWER);
+            } else {
+                horizontalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
+                telemetry.addData("horizontalArm ", "0");
+            }
+
             telemetry.update();
         }
     }
