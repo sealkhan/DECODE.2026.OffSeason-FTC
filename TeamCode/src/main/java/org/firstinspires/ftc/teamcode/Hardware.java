@@ -31,8 +31,8 @@ public abstract class Hardware extends LinearOpMode {
     Servo wrist;
     Servo spintake;
     // Define the power values for moving the arm
-    final double ARM_FORWARD_POWER = -0.2; //Power for moving the horizontalArm forward
-    final double ARM_BACKWARD_POWER = 0.2; //Power for moving the horizontalArm backward
+    final double ARM_FORWARD_POWER = -0.3; //Power for moving the horizontalArm forward
+    final double ARM_BACKWARD_POWER = 0.3; //Power for moving the horizontalArm backward
 
 
 

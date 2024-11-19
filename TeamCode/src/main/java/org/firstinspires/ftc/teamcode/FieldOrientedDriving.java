@@ -141,6 +141,8 @@ public class FieldOrientedDriving extends Hardware {
                 telemetry.addData("top to position", top.getPosition());
             }
 
+
+            //TODO: VALIDATE CODE
             boolean wristUp = true;
 
             if (gamepad2.dpad_up){
@@ -153,13 +155,21 @@ public class FieldOrientedDriving extends Hardware {
                 telemetry.addData("wrist to position", wrist.getPosition());
             }
 
-            if (wristUp){
-                spintake.setPosition(0);
-            } else if (wristUp == false) {
-                double position = (gamepad2.right_stick_y + 1) / 2;  // maps -1 to 1 to 0 to 1
-                spintake.setPosition(position);
-                telemetry.addData("spintake to position", spintake.getPosition());
-            }
+
+
+//            if (wristUp){
+//                spintake.setPosition(0);
+//            } else if (wristUp == false) {
+//                double position = (gamepad2.right_stick_y + 1) / 2;  // maps -1 to 1 to 0 to 1
+//                spintake.setPosition(position);
+//                telemetry.addData("spintake to position", spintake.getPosition());
+//            }
+
+            //TODO: make slow speed for arm with right bumper
+            double position = (gamepad2.right_stick_y + 1) / 2;  // maps -1 to 1 to 0 to 1
+            spintake.setPosition(position);
+            telemetry.addData("spintake to position", spintake.getPosition());
+
 
             if (gamepad2.x) {
                 horizontalArm.setPower(-1.0);
