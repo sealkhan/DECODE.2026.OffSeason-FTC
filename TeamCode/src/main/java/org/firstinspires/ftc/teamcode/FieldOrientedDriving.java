@@ -135,10 +135,10 @@ public class FieldOrientedDriving extends Hardware {
 
             if (gamepad1.a){
                 top.setPosition(1);
-                telemetry.addData("top to position", top.getPosition());
+                telemetry.addData("top to position", 1);
             } else if(gamepad1.b){
                 top.setPosition(0);
-                telemetry.addData("top to position", top.getPosition());
+                telemetry.addData("top to position", 0);
             }
 
 
@@ -146,7 +146,7 @@ public class FieldOrientedDriving extends Hardware {
             boolean wristUp = true;
 
             if (gamepad2.dpad_up){
-                wrist.setPosition(1);
+                wrist.setPosition(0.5); //TODO: Changed from 1
                 telemetry.addData("wrist to position", wrist.getPosition());
                 wristUp = true;
             } else if(gamepad2.dpad_down){
