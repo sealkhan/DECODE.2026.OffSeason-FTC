@@ -133,37 +133,18 @@ public class FieldOrientedDriving extends Hardware {
                 telemetry.addData("mode", "Field Oriented Driving");
             }
 
-            if (gamepad1.a){
-                top.setPosition(1);
-                telemetry.addData("top to position", 1);
-            } else if(gamepad1.b){
-                top.setPosition(0);
-                telemetry.addData("top to position", 0);
-            }
 
-
-            //TODO: VALIDATE CODE
-            boolean wristUp = true;
-
+            //Wrist
             if (gamepad2.dpad_up){
-                wrist.setPosition(0.5); //TODO: Changed from 1
+                wrist.setPosition(0.9); //Switched from 1, up position
                 telemetry.addData("wrist to position", wrist.getPosition());
-                wristUp = true;
             } else if(gamepad2.dpad_down){
                 wrist.setPosition(0);
-                wristUp = false;
                 telemetry.addData("wrist to position", wrist.getPosition());
             }
 
 
 
-//            if (wristUp){
-//                spintake.setPosition(0);
-//            } else if (wristUp == false) {
-//                double position = (gamepad2.right_stick_y + 1) / 2;  // maps -1 to 1 to 0 to 1
-//                spintake.setPosition(position);
-//                telemetry.addData("spintake to position", spintake.getPosition());
-//            }
 
             //TODO: make slow speed for arm with right bumper
             double position = (gamepad2.right_stick_y + 1) / 2;  // maps -1 to 1 to 0 to 1
@@ -171,9 +152,6 @@ public class FieldOrientedDriving extends Hardware {
             telemetry.addData("spintake to position", spintake.getPosition());
 
 
-            if (gamepad2.x) {
-                horizontalArm.setPower(-1.0);
-            }
 
             // Set motor power based on conditions
             if (gamepad2.left_stick_y < -0.1) {
@@ -185,6 +163,21 @@ public class FieldOrientedDriving extends Hardware {
             } else {
                 horizontalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
                 telemetry.addData("horizontalArm ", "0");
+            }
+
+            // Hang mechanism
+            if (gamepad1.y){
+                leftHang.setPower(HANG_POWER);
+                rightHang.setPower(HANG_POWER);
+                telemetry.addData("Hang:", " deploying");
+            } else if (gamepad1.a){
+                leftHang.setPower(-HANG_POWER);
+                rightHang.setPower(-HANG_POWER);
+                telemetry.addData("Hang:", " retracting");
+            } else {
+                leftHang.setPower(0);
+                rightHang.setPower(0);
+                telemetry.addData("Hang:", " null");
             }
 
             telemetry.update();
