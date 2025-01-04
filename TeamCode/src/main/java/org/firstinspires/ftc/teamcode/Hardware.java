@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
 public abstract class Hardware extends LinearOpMode {
@@ -19,16 +20,22 @@ public abstract class Hardware extends LinearOpMode {
     DcMotorEx frontLeft;
     DcMotorEx frontRight;
     DcMotorEx backRight;
-    DcMotorEx horizontalArm;
-
     //DcMotorEx armLeft;
 //    DcMotorEx armRight;
 //    DcMotorEx wrist;
 //    Servo claw;
 //    Servo launcher;
-    final static double ARM_ENCODER_COUNT_PER_ROTATION = 288.0;
-    final static double ARM_NORMAL_SPEED = 10.0; // degrees per second
-    final static double ARM_SLOW_SPEED = 3.0; // degrees per second
+    DcMotorEx horizontalArm;
+    DcMotorEx rightHang;
+    DcMotorEx leftHang;
+
+   // Servo top;
+    Servo wrist;
+    Servo spintake;
+    // Define the power values for moving the arm
+    final double ARM_FORWARD_POWER = -0.3; //Power for moving the horizontalArm forward
+    final double ARM_BACKWARD_POWER = 0.3; //Power for moving the horizontalArm backward
+    final double HANG_POWER = 1;
 
 
     public void initHardware() {
@@ -37,20 +44,18 @@ public abstract class Hardware extends LinearOpMode {
         frontRight = (DcMotorEx) hardwareMap.dcMotor.get("frontRight");
         backLeft = (DcMotorEx) hardwareMap.dcMotor.get("backLeft");
         backRight = (DcMotorEx) hardwareMap.dcMotor.get("backRight");
-        //horizontalArm = (DcMotorEx) hardwareMap.dcMotor.get("horizontalArm");
-        horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
-        //if (horizontalArm != null) {
-            //telemetry.addData("Initialization", "horizontalArm initialized successfully");
-        //} else {
-            //telemetry.addData("Initialization", "horizontalArm NOT initialized ");
-        //}
-        //telemetry.update();
-//        armRight = (DcMotorEx) hardwareMap.dcMotor.get("ArmRight");
-//        armLeft = (DcMotorEx) hardwareMap.dcMotor.get("ArmLeft");
-//        wrist = (DcMotorEx) hardwareMap.dcMotor.get("wrist");
-//        claw = hardwareMap.servo.get("claw");
-//        launcher = hardwareMap.servo.get("launcher");
+        rightHang = (DcMotorEx) hardwareMap.dcMotor.get("rightHang");
+        leftHang = (DcMotorEx) hardwareMap.dcMotor.get("leftHang");
 
+
+        //top = hardwareMap.servo.get("top");
+        wrist = hardwareMap.servo.get("wrist");
+        spintake = hardwareMap.servo.get("spintake");
+        horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
+
+//        launcher = hardwareMap.servo.get("launcher");
+        //top.setDirection(Servo.Direction.FORWARD);
+        wrist.setDirection(Servo.Direction.FORWARD);
 
         // Initialize BHI260AP sensor
         imu = hardwareMap.get(BHI260IMU.class, "imu");
@@ -60,10 +65,6 @@ public abstract class Hardware extends LinearOpMode {
         imu.initialize(parameters);
 
         backLeft.setDirection(DcMotor.Direction.REVERSE);
-
-        //horizontalArm.setPower(-0.3);
-        //sleep(1000);
-        //horizontalArm.setPower(0);
 
 
 //        armLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -168,14 +169,9 @@ public abstract class Hardware extends LinearOpMode {
     public void moveX(double power) {
         frontRight.setPower(-power);
         frontLeft.setPower(power);
-        backRight.setPower(power);
+        backRight.setPower(power);//TODO: check pwr
         backLeft.setPower(-power);
     }
-
-    // Define the power values for moving the arm
-    final double ARM_FORWARD_POWER = -0.5; //Power for moving the horizontalArm forward
-    final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm backward
-
 
     public static double clamp(double value, double min, double max) {
         if (value < min) return min;
