@@ -28,14 +28,19 @@ public abstract class Hardware extends LinearOpMode {
     DcMotorEx horizontalArm;
     DcMotorEx rightHang;
     DcMotorEx leftHang;
+    DcMotorEx verticalArm;
 
    // Servo top;
     Servo wrist;
     Servo spintake;
+    Servo bucketWrist;
     // Define the power values for moving the arm
-    final double ARM_FORWARD_POWER = -0.3; //Power for moving the horizontalArm forward
-    final double ARM_BACKWARD_POWER = 0.3; //Power for moving the horizontalArm backward
+    final double ARM_FORWARD_POWER = -0.5; //Power for moving the horizontalArm and verticalArm forward
+    final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm and verticalArm backward
     final double HANG_POWER = 1;
+    static final double REST_POSITION = 0.0; //Servo facing down
+    static final double FLIP_POSITION = 0.75; //Servo flipped 180 degrees
+
 
 
     public void initHardware() {
@@ -46,16 +51,21 @@ public abstract class Hardware extends LinearOpMode {
         backRight = (DcMotorEx) hardwareMap.dcMotor.get("backRight");
         rightHang = (DcMotorEx) hardwareMap.dcMotor.get("rightHang");
         leftHang = (DcMotorEx) hardwareMap.dcMotor.get("leftHang");
+        verticalArm = (DcMotorEx) hardwareMap.dcMotor.get("verticalArm");
 
 
         //top = hardwareMap.servo.get("top");
         wrist = hardwareMap.servo.get("wrist");
         spintake = hardwareMap.servo.get("spintake");
+        bucketWrist = hardwareMap.servo.get("bucketWrist");
         horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
 
 //        launcher = hardwareMap.servo.get("launcher");
         //top.setDirection(Servo.Direction.FORWARD);
         wrist.setDirection(Servo.Direction.FORWARD);
+
+        //Initialize the servo
+        bucketWrist.setPosition(REST_POSITION);
 
         // Initialize BHI260AP sensor
         imu = hardwareMap.get(BHI260IMU.class, "imu");
