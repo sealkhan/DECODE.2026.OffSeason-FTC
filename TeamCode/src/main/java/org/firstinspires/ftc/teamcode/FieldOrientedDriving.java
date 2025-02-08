@@ -137,7 +137,7 @@ public class FieldOrientedDriving extends Hardware {
 
 
 
-            //TODO: make slow speed for arm with right bumper
+
             double position = (gamepad2.left_stick_x + 1) / 2;  // maps -1 to 1 to 0 to 1
             spintake.setPosition(position);
             telemetry.addData("spintake to position", spintake.getPosition());
@@ -159,10 +159,10 @@ public class FieldOrientedDriving extends Hardware {
 
         //horizontalArm
             if (gamepad2.left_stick_y < -0.5) {
-                horizontalArm.setPower(speedModifier * ARM_FORWARD_POWER);
+                horizontalArm.setPower(-speedModifier * ARM_FORWARD_POWER);
                 telemetry.addData("horizontalArm ", "Moving Forward: %.2f", ARM_FORWARD_POWER * speedModifier);
             } else if (gamepad2.left_stick_y > 0.5) {
-                horizontalArm.setPower(speedModifier * ARM_BACKWARD_POWER);
+                horizontalArm.setPower(-speedModifier * ARM_BACKWARD_POWER);
                 telemetry.addData("horizontalArm ", "Moving Backward: %.2f", ARM_BACKWARD_POWER * speedModifier);
             } else {
                 horizontalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
@@ -198,20 +198,23 @@ public class FieldOrientedDriving extends Hardware {
 
         //Wrist
             if (gamepad2.dpad_up){
-                wrist.setPosition(0.9); //Switched from 1, up position
+                wrist.setPosition(1); //Switched from 1, up position
                 telemetry.addData("wrist to position", wrist.getPosition());
+            } else if (gamepad2.dpad_right){
+                wrist.setPosition(0.2);
             } else if(gamepad2.dpad_down){
-                wrist.setPosition(0);
+                wrist.setPosition(0.1);
                 telemetry.addData("wrist to position", wrist.getPosition());
             }
 
+
         // bucketWrist
-            //Check if the left dpad button is pressed
-            if (gamepad2.dpad_left) {
+            //Check if the y button is pressed
+            if (gamepad2.y) {
                 bucketWrist.setPosition(FLIP_POSITION);
             }
-            //Check if the right dpad button is pressed
-            if (gamepad2.dpad_right) {
+            //Check if the a button is pressed
+            if (gamepad2.a) {
                 bucketWrist.setPosition(REST_POSITION);
             }
             //Add telemetry to moniter servo posiition
@@ -226,22 +229,35 @@ public class FieldOrientedDriving extends Hardware {
             long SPIN_DURATION = 1000;     // Time in milliseconds to hold intake position
             long ARM_EXTEND_DURATION = 2000; // Time in milliseconds to extend vertical arm
             //Check if the x button is pressed
-            if (gamepad2.x) {
-                // Step 1: Move the servo to the intake position
-                spintake.setPosition(INTAKE_POSITION);
-                sleep(SPIN_DURATION); // Wait for specimen to be taken
+//            if (gamepad2.x) {
+//                 // Step 1: Move the servo to the intake position
+//                spintake.setPosition(INTAKE_POSITION);
+//                sleep(SPIN_DURATION); // Wait for specimen to be taken
+//
+//                // Step 2: Move the servo to the drop position
+//                spintake.setPosition(DROP_POSITION);
+//                sleep(SPIN_DURATION); // Wait for specimen to be dropped
+//
+//                // Step 3: Return the servo to the neutral position
+//                spintake.setPosition(NEUTRAL_POSITION);
+//
+//                // Step 4: Extend the vertical arm
+//                verticalArm.setPower(ARM_EXTEND_POWER);
+//                sleep(ARM_EXTEND_DURATION); // Wait for the arm to fully extend
+//                verticalArm.setPower(0); // Stop the vertical arm
+//            }
 
-                // Step 2: Move the servo to the drop position
-                spintake.setPosition(DROP_POSITION);
-                sleep(SPIN_DURATION); // Wait for specimen to be dropped
+            //TODO: temporary
+//            if (gamepad1.x){
+//                claw.setPosition(1);
+//            }
 
-                // Step 3: Return the servo to the neutral position
-                spintake.setPosition(NEUTRAL_POSITION);
+            if(gamepad2.x){
+                claw.setPosition(0.7);
+            }
 
-                // Step 4: Extend the vertical arm
-                verticalArm.setPower(ARM_EXTEND_POWER);
-                sleep(ARM_EXTEND_DURATION); // Wait for the arm to fully extend
-                verticalArm.setPower(0); // Stop the vertical arm
+            if(gamepad2.b){
+                claw.setPosition(0.5);
             }
 
 

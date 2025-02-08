@@ -23,7 +23,7 @@ public abstract class Hardware extends LinearOpMode {
     //DcMotorEx armLeft;
 //    DcMotorEx armRight;
 //    DcMotorEx wrist;
-//    Servo claw;
+    Servo claw;
 //    Servo launcher;
     DcMotorEx horizontalArm;
     DcMotorEx rightHang;
@@ -39,7 +39,7 @@ public abstract class Hardware extends LinearOpMode {
     final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm and verticalArm backward
     final double HANG_POWER = 1;
     static final double REST_POSITION = 0.0; //Servo facing down
-    static final double FLIP_POSITION = 0.75; //Servo flipped 180 degrees
+    static final double FLIP_POSITION = 0.65; //Servo flipped 180 degrees, used to be 0.75
 
 
 
@@ -58,7 +58,9 @@ public abstract class Hardware extends LinearOpMode {
         wrist = hardwareMap.servo.get("wrist");
         spintake = hardwareMap.servo.get("spintake");
         bucketWrist = hardwareMap.servo.get("bucketWrist");
+        claw = hardwareMap.servo.get("claw");
         horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
+
 
 //        launcher = hardwareMap.servo.get("launcher");
         //top.setDirection(Servo.Direction.FORWARD);
@@ -75,6 +77,7 @@ public abstract class Hardware extends LinearOpMode {
         imu.initialize(parameters);
 
         backLeft.setDirection(DcMotor.Direction.REVERSE);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
 
 
 //        armLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -86,7 +89,7 @@ public abstract class Hardware extends LinearOpMode {
 //        wrist.setTargetPosition(0);
 //        wrist.setMode(RunMode.RUN_TO_POSITION);
 //
-//        claw.setDirection(Servo.Direction.FORWARD);
+        claw.setDirection(Servo.Direction.FORWARD);
 //        launcher.setDirection(Servo.Direction.FORWARD);
 
         waitForStart();
@@ -155,6 +158,36 @@ public abstract class Hardware extends LinearOpMode {
 //        moveArmMotor(armRight, position, slowSpeed);
 //    }
 
+    public void putSpecimen(){
+        claw.setPosition(0);
+        sleep(100);
+
+        moveY(0);
+        verticalArm.setPower(-0.5);
+        sleep(1000);
+
+        //TODO: Does arm get stuck?
+
+        moveY(0.5);
+        verticalArm.setPower(-0.5);
+        sleep(600);
+
+        moveY(0);
+        verticalArm.setPower(0);
+        sleep(200);
+
+        verticalArm.setPower(1);
+        sleep(300);
+
+        claw.setPosition(1); //TODO: Open claw
+        verticalArm.setPower(0.5);
+        moveY(-0.5);
+    }
+
+    public void testMotors(){
+
+    }
+
     // stop moving
     public void stopMoving() {
         frontRight.setPower(0);
@@ -179,7 +212,7 @@ public abstract class Hardware extends LinearOpMode {
     public void moveX(double power) {
         frontRight.setPower(-power);
         frontLeft.setPower(power);
-        backRight.setPower(power);//TODO: check pwr
+        backRight.setPower(power);
         backLeft.setPower(-power);
     }
 

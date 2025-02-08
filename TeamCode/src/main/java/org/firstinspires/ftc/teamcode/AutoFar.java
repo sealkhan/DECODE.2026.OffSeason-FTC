@@ -9,7 +9,7 @@ public class AutoFar extends Hardware {
     public void runOpMode() throws InterruptedException {
         initHardware();
         stopMoving();
-        moveX(.5);
+        moveY(.5);
         sleep(7000);
 
         //
