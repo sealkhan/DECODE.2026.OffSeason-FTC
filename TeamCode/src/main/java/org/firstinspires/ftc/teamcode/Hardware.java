@@ -8,11 +8,14 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public abstract class Hardware extends LinearOpMode {
     BHI260IMU imu;
@@ -29,6 +32,7 @@ public abstract class Hardware extends LinearOpMode {
     DcMotorEx rightHang;
     DcMotorEx leftHang;
     DcMotorEx verticalArm;
+    public DistanceSensor distanceSensor;
 
    // Servo top;
     Servo wrist;
@@ -40,6 +44,7 @@ public abstract class Hardware extends LinearOpMode {
     final double HANG_POWER = 1;
     static final double REST_POSITION = 0.0; //Servo facing down
     static final double FLIP_POSITION = 0.65; //Servo flipped 180 degrees, used to be 0.75
+
 
 
 
@@ -60,6 +65,7 @@ public abstract class Hardware extends LinearOpMode {
         bucketWrist = hardwareMap.servo.get("bucketWrist");
         claw = hardwareMap.servo.get("claw");
         horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
 
 
 //        launcher = hardwareMap.servo.get("launcher");
@@ -184,10 +190,6 @@ public abstract class Hardware extends LinearOpMode {
         moveY(-0.5);
     }
 
-    public void testMotors(){
-
-    }
-
     // stop moving
     public void stopMoving() {
         frontRight.setPower(0);
@@ -257,4 +259,26 @@ public abstract class Hardware extends LinearOpMode {
         motor.setTargetPosition(0);
         motor.setMode(RunMode.RUN_WITHOUT_ENCODER);
     }
+
+    public void goPark(){
+        //bring wrist all the way up (?)
+        wrist.setPosition(1);
+        sleep(300);
+
+        //move back
+        moveY(.2);
+        sleep(500);
+
+        //move to side of field with parking
+        moveX(-0.5);
+        sleep(4000);
+
+        //park
+        moveY(.3);
+        sleep(2000);
+
+//        moveY(-0.2);
+//        sleep(300);
+    }
+
 }

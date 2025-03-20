@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 
@@ -158,10 +159,10 @@ public class FieldOrientedDriving extends Hardware {
             }
 
         //horizontalArm
-            if (gamepad2.left_stick_y < -0.5) {
+            if (gamepad2.right_stick_y < -0.5) {
                 horizontalArm.setPower(-speedModifier * ARM_FORWARD_POWER);
                 telemetry.addData("horizontalArm ", "Moving Forward: %.2f", ARM_FORWARD_POWER * speedModifier);
-            } else if (gamepad2.left_stick_y > 0.5) {
+            } else if (gamepad2.right_stick_y > 0.5) {
                 horizontalArm.setPower(-speedModifier * ARM_BACKWARD_POWER);
                 telemetry.addData("horizontalArm ", "Moving Backward: %.2f", ARM_BACKWARD_POWER * speedModifier);
             } else {
@@ -170,11 +171,11 @@ public class FieldOrientedDriving extends Hardware {
             }
 
         //verticalArm
-            if (gamepad2.right_stick_y < -0.1) {
-                verticalArm.setPower(speedModifier * ARM_FORWARD_POWER);
+            if (gamepad2.left_stick_y < -0.1) {
+                verticalArm.setPower(-speedModifier * ARM_FORWARD_POWER);
                 telemetry.addData("verticalArm ","Moving Up: %.2f", ARM_FORWARD_POWER * speedModifier);
-            } else if (gamepad2.right_stick_y > 0.1) {
-                verticalArm.setPower(speedModifier * ARM_BACKWARD_POWER);
+            } else if (gamepad2.left_stick_y > 0.1) {
+                verticalArm.setPower(-speedModifier * ARM_BACKWARD_POWER);
                 telemetry.addData("verticalArm ","Moving Down: %.2f", ARM_BACKWARD_POWER * speedModifier);
             } else {
                 verticalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
@@ -252,15 +253,18 @@ public class FieldOrientedDriving extends Hardware {
 //                claw.setPosition(1);
 //            }
 
+            //close claw
             if(gamepad2.x){
-                claw.setPosition(0.7);
+                claw.setPosition(0.62);
             }
 
+            //open claw
             if(gamepad2.b){
                 claw.setPosition(0.5);
             }
 
-
+            telemetry.addData("Distance is ", distanceSensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("Claw position is ", claw.getPosition());
             telemetry.update();
 
         }
