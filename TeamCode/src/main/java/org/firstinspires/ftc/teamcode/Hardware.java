@@ -15,7 +15,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 
 public abstract class Hardware extends LinearOpMode {
     BHI260IMU imu;
@@ -23,30 +26,14 @@ public abstract class Hardware extends LinearOpMode {
     DcMotorEx frontLeft;
     DcMotorEx frontRight;
     DcMotorEx backRight;
-    //DcMotorEx armLeft;
-//    DcMotorEx armRight;
-//    DcMotorEx wrist;
-    Servo claw;
-//    Servo launcher;
-    DcMotorEx horizontalArm;
-    DcMotorEx rightHang;
-    DcMotorEx leftHang;
-    DcMotorEx verticalArm;
+    DcMotorEx shooterWheel;
+    DcMotorEx leftAscend;
+    DcMotorEx rightAscend;
+    DcMotorEx intake;
+    Servo shooterDoor;
+    Servo kickUp;
+    Servo thirdBallKick;
     public DistanceSensor distanceSensor;
-
-   // Servo top;
-    Servo wrist;
-    Servo spintake;
-    Servo bucketWrist;
-    // Define the power values for moving the arm
-    final double ARM_FORWARD_POWER = -0.5; //Power for moving the horizontalArm and verticalArm forward
-    final double ARM_BACKWARD_POWER = 0.5; //Power for moving the horizontalArm and verticalArm backward
-    final double HANG_POWER = 1;
-    static final double REST_POSITION = 0.0; //Servo facing down
-    static final double FLIP_POSITION = 0.65; //Servo flipped 180 degrees, used to be 0.75
-
-
-
 
     public void initHardware() {
         // Initialize motors
@@ -54,49 +41,25 @@ public abstract class Hardware extends LinearOpMode {
         frontRight = (DcMotorEx) hardwareMap.dcMotor.get("frontRight");
         backLeft = (DcMotorEx) hardwareMap.dcMotor.get("backLeft");
         backRight = (DcMotorEx) hardwareMap.dcMotor.get("backRight");
-        rightHang = (DcMotorEx) hardwareMap.dcMotor.get("rightHang");
-        leftHang = (DcMotorEx) hardwareMap.dcMotor.get("leftHang");
-        verticalArm = (DcMotorEx) hardwareMap.dcMotor.get("verticalArm");
+        shooterWheel = (DcMotorEx) hardwareMap.dcMotor.get("shooterWheel");
+        intake = (DcMotorEx) hardwareMap.dcMotor.get("intake");
+        shooterDoor = hardwareMap.get(Servo.class, "shooterDoor");
+        kickUp = hardwareMap.get(Servo.class, "kickUp");
+        thirdBallKick = hardwareMap.get(Servo.class, "thirdBallKick");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "rangeFront");
 
-
-        //top = hardwareMap.servo.get("top");
-        wrist = hardwareMap.servo.get("wrist");
-        spintake = hardwareMap.servo.get("spintake");
-        bucketWrist = hardwareMap.servo.get("bucketWrist");
-        claw = hardwareMap.servo.get("claw");
-        horizontalArm = hardwareMap.get(DcMotorEx.class, "horizontalArm");
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-
-
-//        launcher = hardwareMap.servo.get("launcher");
-        //top.setDirection(Servo.Direction.FORWARD);
-        wrist.setDirection(Servo.Direction.FORWARD);
-
-        //Initialize the servo
-        bucketWrist.setPosition(REST_POSITION);
+        leftAscend = (DcMotorEx) hardwareMap.dcMotor.get("leftAscend");
+        rightAscend = (DcMotorEx) hardwareMap.dcMotor.get("rightAscend");
 
         // Initialize BHI260AP sensor
         imu = hardwareMap.get(BHI260IMU.class, "imu");
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)); //Should be UP
 
         imu.initialize(parameters);
 
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-
-
-//        armLeft.setDirection(DcMotor.Direction.REVERSE);
-////        initArmMotor(armRight);
-////        initArmFollowerMotor(armLeft);
-//
-//        wrist.setMode(RunMode.STOP_AND_RESET_ENCODER);
-//        wrist.setPower(0.0);
-//        wrist.setTargetPosition(0);
-//        wrist.setMode(RunMode.RUN_TO_POSITION);
-//
-        claw.setDirection(Servo.Direction.FORWARD);
-//        launcher.setDirection(Servo.Direction.FORWARD);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
+        shooterWheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         waitForStart();
     }
@@ -140,9 +103,6 @@ public abstract class Hardware extends LinearOpMode {
 //    }
 //
 
-
-
-
 //    public void moveClaw(double position) {
 //        claw.setPosition(position);
 //    }
@@ -164,31 +124,7 @@ public abstract class Hardware extends LinearOpMode {
 //        moveArmMotor(armRight, position, slowSpeed);
 //    }
 
-    public void putSpecimen(){
-        claw.setPosition(0);
-        sleep(100);
 
-        moveY(0);
-        verticalArm.setPower(-0.5);
-        sleep(1000);
-
-        //TODO: Does arm get stuck?
-
-        moveY(0.5);
-        verticalArm.setPower(-0.5);
-        sleep(600);
-
-        moveY(0);
-        verticalArm.setPower(0);
-        sleep(200);
-
-        verticalArm.setPower(1);
-        sleep(300);
-
-        claw.setPosition(1); //TODO: Open claw
-        verticalArm.setPower(0.5);
-        moveY(-0.5);
-    }
 
     // stop moving
     public void stopMoving() {
@@ -252,7 +188,6 @@ public abstract class Hardware extends LinearOpMode {
 //    }
 //
 
-
     public void initArmMotorSimple(DcMotorEx motor) {
         motor.setMode(RunMode.STOP_AND_RESET_ENCODER);
         motor.setPower(0.0);
@@ -261,9 +196,7 @@ public abstract class Hardware extends LinearOpMode {
     }
 
     public void goPark(){
-        //bring wrist all the way up (?)
-        wrist.setPosition(1);
-        sleep(300);
+
 
         //move back
         moveY(.2);
@@ -271,7 +204,7 @@ public abstract class Hardware extends LinearOpMode {
 
         //move to side of field with parking
         moveX(-0.5);
-        sleep(4000);
+        sleep(4500);
 
         //park
         moveY(.3);
@@ -279,6 +212,187 @@ public abstract class Hardware extends LinearOpMode {
 
 //        moveY(-0.2);
 //        sleep(300);
+    }
+
+    public void rotateBot(int sleep, boolean clockwise){
+        int clockwiseNumber;
+        if (clockwise == true){
+            clockwiseNumber = 1;
+        } else {
+            clockwiseNumber = -1;
+        }
+        frontLeft.setPower(0.5 * clockwiseNumber);
+        backLeft.setPower(0.5 * clockwiseNumber);
+        frontRight.setPower(-0.5 * clockwiseNumber);
+        backRight.setPower(-0.5 * clockwiseNumber);
+        sleep(sleep);
+
+        frontLeft.setPower(0);
+        backLeft.setPower(0);
+        frontRight.setPower(0);
+        backRight.setPower(0);
+
+    }
+
+    public double getHeading() {
+        YawPitchRollAngles angles = imu.getRobotYawPitchRollAngles();
+        double headingRadians = AngleUnit.RADIANS.normalize(angles.getYaw(AngleUnit.RADIANS));
+        double headingDegrees = Math.toDegrees(headingRadians);
+        telemetry.addData("Heading (Degrees)", headingDegrees);
+        telemetry.update();
+        return headingRadians;
+    }
+
+    public void rotateToAngle(double targetDegrees) {
+        double targetHeading = Math.toRadians(targetDegrees);  // Convert target angle to radians
+        double currentHeading = getHeading();  // Get current heading in radians
+
+        // Calculate the new target heading relative to the current heading
+        double newTargetHeading = currentHeading + targetHeading;
+
+        // Ensure the target heading is within the -π to π range
+        newTargetHeading = (newTargetHeading + Math.PI) % (2 * Math.PI) - Math.PI;
+
+        // Calculate the error to be corrected
+        double error = angleDifference(newTargetHeading, currentHeading);
+
+        // Rotate until the robot reaches the target heading within a tolerance
+        while (opModeIsActive() && Math.abs(error) > 0.017) { // ~1 degree in radians
+            double power = 0.3 * Math.signum(error);  // Set motor power based on error direction
+            frontLeft.setPower(power);
+            backLeft.setPower(power);
+            frontRight.setPower(-power);
+            backRight.setPower(-power);
+
+            currentHeading = getHeading();  // Get the updated heading
+            error = angleDifference(newTargetHeading, currentHeading);  // Update the error
+        }
+
+        stopMotors();  // Stop the motors once the target is reached
+    }
+
+    public double angleDifference(double target, double current) {
+        double diff = target - current;
+        while (diff > Math.PI) diff -= 2 * Math.PI;
+        while (diff < -Math.PI) diff += 2 * Math.PI;
+        return diff;
+    }
+
+    public void stopMotors() {
+        frontLeft.setPower(0);
+        frontRight.setPower(0);
+        backLeft.setPower(0);
+        backRight.setPower(0);
+    }
+
+    public boolean shooting = false;
+    public boolean shootingLast = false;
+    public ElapsedTime shootTimer = new ElapsedTime();
+
+    public void shootOneBall() {
+        shooting = true;
+        shootTimer.reset();
+    }
+
+    public void shootOneBallLast() {
+        shootingLast = true;
+        shootTimer.reset();
+    }
+
+    public void shootBallsWithEncoder(){
+        //Shoot one ball
+        shooterWheel.setVelocity(-1230);
+        kickUp.setPosition(0.32);
+        sleep(500);
+
+        //Reset kick-up position and second ball
+        kickUp.setPosition(0.22);
+        intake.setPower(1.5); //TODO: CHECK DIRECTION
+        sleep(2000); //TODO: Include distance sensor?
+        kickUp.setPosition(0.32);
+        sleep(100);
+
+        //Reset kick-up position and third ball
+        kickUp.setPosition(0.22);
+        thirdBallKick.setPosition(0.3);
+        intake.setPower(1.5); //TODO: CHECK DIRECTION
+        sleep(300); //TODO: Include distance sensor?
+        thirdBallKick.setPosition(0);
+        sleep(400);
+        thirdBallKick.setPosition(0.3);
+        sleep(400);
+        kickUp.setPosition(0.32);
+        sleep(500);
+    }
+
+
+    public void shootOneBallWithEncoderBlueInside(){
+        shooterWheel.setVelocity(-1350);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(130);
+        shooterDoor.setPosition(0);
+        sleep(500);
+
+
+        shooterWheel.setVelocity(-1350);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(150);
+        shooterDoor.setPosition(0);
+        sleep(500);
+    }
+
+    public void shootOneBallWithEncoderRedOutside(){
+        shooterWheel.setVelocity(-1310);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(130);
+        shooterDoor.setPosition(0);
+        sleep(500);
+
+        //Second set of balls
+        shooterWheel.setVelocity(-1310);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(150);
+        shooterDoor.setPosition(0);
+        sleep(500);
+    }
+
+
+    public void changeMotifWithEncoder(){
+        shooterWheel.setVelocity(-800); //800
+        shooterDoor.setPosition(0);
+        sleep(3500);
+        shooterDoor.setPosition(0.7);
+        sleep(250);
+        shooterDoor.setPosition(0);
+        sleep(1000);
+    }
+
+    public void shootOneBallWithEncoderLastBlue(){
+        shooterWheel.setVelocity(-1360);
+        shooterDoor.setPosition(0);
+        sleep(3500);
+        shooterDoor.setPosition(0.7);
+        sleep(500);
+        shooterDoor.setPosition(0);
+        sleep(1000);
+    }
+
+    public void shootOneBallWithEncoderLastRed(){
+        shooterWheel.setVelocity(-1300);
+        shooterDoor.setPosition(0);
+        sleep(3500);
+        shooterDoor.setPosition(0.7);
+        sleep(500);
+        shooterDoor.setPosition(0);
+        sleep(1000);
     }
 
 }

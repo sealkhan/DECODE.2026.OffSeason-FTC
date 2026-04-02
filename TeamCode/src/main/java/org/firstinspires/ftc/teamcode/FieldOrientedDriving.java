@@ -1,11 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.RobotLog;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
@@ -31,12 +28,17 @@ public class FieldOrientedDriving extends Hardware {
     public void runOpMode() {
         initHardware();
 
-        //initArmMotorSimple(armRight); // try directly controlling the arm motors with simple power
-        //initArmMotorSimple(armLeft); // try directly controlling the arm motors with simple power
-
         boolean previousX = false;
-        boolean antigravity = false;
-        boolean emergencyDrive = false; // activates arm motor control & gravity compensation
+        boolean emergencyDrive = false; // activates arm motor control
+        boolean previousY = false;
+        boolean previousA = false;
+        boolean doorOpen = false;
+        boolean toggle1500 = false;
+        boolean lastLB = false;
+        boolean toggle1220 = false;
+        boolean lastRB = false;
+
+
         while (opModeIsActive()) {
             boolean slowSpeed = gamepad1.left_bumper; // when pressed, slow down robot
             // X presses
@@ -67,7 +69,7 @@ public class FieldOrientedDriving extends Hardware {
                 if (gamepad1.right_bumper){
                     dividedBy = 0.5;
                 } else if (gamepad1.left_bumper){
-                    dividedBy = 4;
+                    dividedBy = 6;
                 }
 
                 frontLeft.setPower((y + X + rx) / dividedBy);
@@ -125,7 +127,6 @@ public class FieldOrientedDriving extends Hardware {
                 telemetry.addData("backRightPower: ", backRightPower);
 
                 telemetry.addData("yaw", yaw);
-                //addMotorTelemetry();
             }
 
             // adds to the telemetry which mode the robot is in
@@ -136,136 +137,105 @@ public class FieldOrientedDriving extends Hardware {
             }
 
 
-
-
-
-            double position = (gamepad2.left_stick_x + 1) / 2;  // maps -1 to 1 to 0 to 1
-            spintake.setPosition(position);
-            telemetry.addData("spintake to position", spintake.getPosition());
-
-
-    //Gamepad Controllers defined
-        // Set motor power based on conditions
+            //Gamepad Controllers defined
+            // Set motor power based on conditions
             //Define speed modifiers
             double speedModifier = 1.0; //Default Speed
 
-        // Check bumper conditions
-            if (gamepad2.left_bumper) {
-                speedModifier = 0.5; //Slow down to 50% speed
-            } else if (gamepad2.right_bumper) {
-                speedModifier = 1.5; // Speed up to 150% speed
-            } else {
-                speedModifier = 1.0; //Default speed
-            }
-
-        //horizontalArm
-            if (gamepad2.right_stick_y < -0.5) {
-                horizontalArm.setPower(-speedModifier * ARM_FORWARD_POWER);
-                telemetry.addData("horizontalArm ", "Moving Forward: %.2f", ARM_FORWARD_POWER * speedModifier);
-            } else if (gamepad2.right_stick_y > 0.5) {
-                horizontalArm.setPower(-speedModifier * ARM_BACKWARD_POWER);
-                telemetry.addData("horizontalArm ", "Moving Backward: %.2f", ARM_BACKWARD_POWER * speedModifier);
-            } else {
-                horizontalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
-                telemetry.addData("horizontalArm ", "Stopped");
-            }
-
-        //verticalArm
-            if (gamepad2.left_stick_y < -0.1) {
-                verticalArm.setPower(-speedModifier * ARM_FORWARD_POWER);
-                telemetry.addData("verticalArm ","Moving Up: %.2f", ARM_FORWARD_POWER * speedModifier);
-            } else if (gamepad2.left_stick_y > 0.1) {
-                verticalArm.setPower(-speedModifier * ARM_BACKWARD_POWER);
-                telemetry.addData("verticalArm ","Moving Down: %.2f", ARM_BACKWARD_POWER * speedModifier);
-            } else {
-                verticalArm.setPower(0); //Stop the arm if the joystick is in the neutral position
-                telemetry.addData("verticalArm ", "Stopped");
-            }
-
-        // Hang mechanism
-            if (gamepad1.y){
-                leftHang.setPower(HANG_POWER);
-                rightHang.setPower(HANG_POWER);
-                telemetry.addData("Hang:", " deploying");
-            } else if (gamepad1.a){
-                leftHang.setPower(-HANG_POWER);
-                rightHang.setPower(-HANG_POWER);
-                telemetry.addData("Hang:", " retracting");
-            } else {
-                leftHang.setPower(0);
-                rightHang.setPower(0);
-                telemetry.addData("Hang:", " null");
-            }
-
-        //Wrist
-            if (gamepad2.dpad_up){
-                wrist.setPosition(1); //Switched from 1, up position
-                telemetry.addData("wrist to position", wrist.getPosition());
-            } else if (gamepad2.dpad_right){
-                wrist.setPosition(0.2);
-            } else if(gamepad2.dpad_down){
-                wrist.setPosition(0.1);
-                telemetry.addData("wrist to position", wrist.getPosition());
-            }
-
-
-        // bucketWrist
-            //Check if the y button is pressed
-            if (gamepad2.y) {
-                bucketWrist.setPosition(FLIP_POSITION);
-            }
-            //Check if the a button is pressed
-            if (gamepad2.a) {
-                bucketWrist.setPosition(REST_POSITION);
-            }
-            //Add telemetry to moniter servo posiition
-            telemetry.addData("bucketeWrist Servo Position", bucketWrist.getPosition());
-
-        // x button
-            // Define constants
-            double INTAKE_POSITION = 0.5;  // Servo position to take the specimen
-            double DROP_POSITION = 1.0;    // Servo position to drop the specimen
-            double NEUTRAL_POSITION = 0.0; // Neutral position (stop state for servo)
-            double ARM_EXTEND_POWER = 0.5; // Power for extending the vertical arm
-            long SPIN_DURATION = 1000;     // Time in milliseconds to hold intake position
-            long ARM_EXTEND_DURATION = 2000; // Time in milliseconds to extend vertical arm
-            //Check if the x button is pressed
-//            if (gamepad2.x) {
-//                 // Step 1: Move the servo to the intake position
-//                spintake.setPosition(INTAKE_POSITION);
-//                sleep(SPIN_DURATION); // Wait for specimen to be taken
-//
-//                // Step 2: Move the servo to the drop position
-//                spintake.setPosition(DROP_POSITION);
-//                sleep(SPIN_DURATION); // Wait for specimen to be dropped
-//
-//                // Step 3: Return the servo to the neutral position
-//                spintake.setPosition(NEUTRAL_POSITION);
-//
-//                // Step 4: Extend the vertical arm
-//                verticalArm.setPower(ARM_EXTEND_POWER);
-//                sleep(ARM_EXTEND_DURATION); // Wait for the arm to fully extend
-//                verticalArm.setPower(0); // Stop the vertical arm
+            // Check bumper conditions
+//            if (gamepad2.left_bumper) {
+//                speedModifier = 0.5; //Slow down to 50% speed
+//            } else if (gamepad2.right_bumper) {
+//                speedModifier = 1.5; // Speed up to 150% speed
+//            } else {
+//                speedModifier = 1.0; //Default speed
 //            }
 
-            //TODO: temporary
-//            if (gamepad1.x){
-//                claw.setPosition(1);
+            // Gamepad2 left stick y turns on SHOOTER
+
+
+            //TODO: FINISH THIS CODE! --> SHOOTER
+            ///////////////////////////////////////////////////////////////////////////////////////
+            // Toggle for 1500 (Left Bumper)
+            if (gamepad2.left_bumper && !lastLB) {
+                toggle1500 = !toggle1500;
+                if (toggle1500) toggle1220 = false; // Turn off the other speed
+            }
+            lastLB = gamepad2.left_bumper;
+
+            // Toggle for 1220 (Right Bumper)
+            if (gamepad2.right_bumper && !lastRB) {
+                toggle1220 = !toggle1220;
+                if (toggle1220) toggle1500 = false; // Turn off the other speed
+            }
+            lastRB = gamepad2.right_bumper;
+
+            // Velocity Logic
+            if (gamepad2.right_stick_y < -0.5 || toggle1500) {
+                shooterWheel.setVelocity(-1500);
+            } else if (gamepad2.right_stick_y > 0.5 || toggle1220) {
+                shooterWheel.setVelocity(-1300);
+            } else {
+                shooterWheel.setVelocity(0);
+            }
+
+            //////////////////////////////////////////////////////////////////////////////////////
+//            if(gamepad2.right_stick_y < -0.5){
+//                shooterWheel.setVelocity(-1200);
+//            } else {
+//                shooterWheel.setVelocity(0);
 //            }
 
-            //close claw
+
+            // Gamepad2 right stick y runs intake
+            intake.setPower(-gamepad2.left_stick_y); //-gamepad2.left_stick_y/3
+
+            // Gamepad2 y moves the kick-up
+            if(gamepad2.y){
+                kickUp.setPosition(0.32);
+            } else {
+                kickUp.setPosition(0.22);
+            }
+
+            // Gamepad x kicks in the third ball
             if(gamepad2.x){
-                claw.setPosition(0.62);
+                thirdBallKick.setPosition(0.45);
+            } else {
+                thirdBallKick.setPosition(0);
             }
 
-            //open claw
-            if(gamepad2.b){
-                claw.setPosition(0.5);
+            // Gamepad a opens the door
+            if (gamepad2.a && !previousA) {
+                doorOpen = !doorOpen; // Switch the state
+            }
+            previousA = gamepad2.a; // Update previous state
+            // Set position based on the toggle
+            if (doorOpen) {
+                shooterDoor.setPosition(0.58);
+            } else {
+                shooterDoor.setPosition(0.7);
             }
 
-            telemetry.addData("Distance is ", distanceSensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("Claw position is ", claw.getPosition());
-            telemetry.update();
+            //Ascension logic
+            if(gamepad1.y){
+                leftAscend.setPower(-1.0);
+                rightAscend.setPower(-1.0);
+                telemetry.addLine("Ascending!");
+            } else if (gamepad1.b){
+                leftAscend.setPower(1.0);
+                rightAscend.setPower(1.0);
+                telemetry.addLine("Descending! WATCH OUT!");
+            } else if (gamepad1.a || gamepad1.y && gamepad1.left_bumper){
+                leftAscend.setPower(0.3);
+                rightAscend.setPower(0.3);
+                telemetry.addLine("Descending SLOWLY! WATCH OUT!");
+            } else {
+                leftAscend.setPower(0);
+                rightAscend.setPower(0);
+                telemetry.addLine("Not ascending or descending...");
+            }
+
+            telemetry.addData("wheel ticks", shooterWheel.getVelocity());
 
         }
     }
