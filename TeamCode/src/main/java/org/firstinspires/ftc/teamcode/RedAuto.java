@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+//TODO: TEST THIS!
+
+
 @Autonomous(name = "RedAuto", group = "LinearOpMode")
 //Declares as autonomous file, SDK thing
 public class RedAuto extends Hardware {
@@ -13,47 +16,64 @@ public class RedAuto extends Hardware {
         initHardware();
         stopMoving();
 
-        telemetry.addData("distance", distanceSensor.getDistance(DistanceUnit.INCH));
-        shooterHand.setPosition(0.0);  // UP position (blocks balls)
-        sleep(200);                    // Let servo settle
         waitForStart();
+        //Redo with 46 inches
 
-        shooterHand.setPosition(0);
-        sleep(400);
+        telemetry.addData("distance", distanceSensor.getDistance(DistanceUnit.INCH));
 
-        // Now start flywheel warmup
-        double shooterVelocity = -1300;
-        shooterWheel.setVelocity(shooterVelocity);
-        sleep(1500);  // Flywheel spins up to stable speed
-        while (distanceSensor.getDistance(DistanceUnit.INCH)<37){
-            moveY(-0.3);
+        //Start powering the wheel while backing up
+        shooterWheel.setVelocity(-1230);
+        sleep(1500);
+        //Move away from goal
+        while (distanceSensor.getDistance(DistanceUnit.INCH)<45){
+            moveX(0.5); //used to be moveY(-0.3);
         }
 
+
+
         stopMoving();
 
+        //Shoot BALL ONE
+        kickUp.setPosition(0.32);
+        sleep(700);
 
-//        moveY(-0.3);
-//        sleep(200);
-//        stopMoving();
+        //Reset Position
+        kickUp.setPosition(0.22);
+        sleep(2000); //buffer wait time
 
-        // NOW safe to open gate for first ball - function starts with hand UP
-        shootThreeBallsGateStyle();
+        //Shoot BALL TWO
+        thirdBallKick.setPosition(0.45);
+        sleep(400);
+        kickUp.setPosition(0.32);
+        sleep(700);
 
-        moveY(0.2);
-        sleep(120);
-        stopMoving();
-        sleep(300);
+        //Reset Position
+        kickUp.setPosition(0.22);
+        thirdBallKick.setPosition(0);
+        sleep(600);
+        intake.setPower(-0.1);
+        sleep(600);
 
+        //Shoot ball THREE
+        thirdBallKick.setPosition(0.45);
+        sleep(400);
+        intake.setPower(0);
+        sleep(2000); //buffer weight time
+        kickUp.setPosition(0.32);
+        sleep(700);
+
+        //Reset shooter position
+        kickUp.setPosition(0.22);
+        thirdBallKick.setPosition(0);
+        sleep(500);
+
+
+        //move out of white triangle
+        moveX(-0.3);
+        sleep(2000);
 
         moveY(0.5);
         sleep(500);
-
-        moveX(0.5);
-        sleep(1500);
-
-        // Turn off flywheel when done
-        shooterWheel.setVelocity(0);
-        shooterHand.setPosition(0.5);  // UP position (blocks balls)
 
 
     }

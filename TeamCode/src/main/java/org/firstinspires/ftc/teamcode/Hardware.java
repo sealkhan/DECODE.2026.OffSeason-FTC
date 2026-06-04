@@ -8,19 +8,17 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.RunMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 
 public abstract class Hardware extends LinearOpMode {
     BHI260IMU imu;
@@ -31,7 +29,10 @@ public abstract class Hardware extends LinearOpMode {
     DcMotorEx shooterWheel;
     DcMotorEx leftAscend;
     DcMotorEx rightAscend;
-    Servo shooterHand;
+    DcMotorEx intake;
+    Servo shooterDoor;
+    Servo kickUp;
+    Servo thirdBallKick;
     public DistanceSensor distanceSensor;
 
     public void initHardware() {
@@ -41,7 +42,10 @@ public abstract class Hardware extends LinearOpMode {
         backLeft = (DcMotorEx) hardwareMap.dcMotor.get("backLeft");
         backRight = (DcMotorEx) hardwareMap.dcMotor.get("backRight");
         shooterWheel = (DcMotorEx) hardwareMap.dcMotor.get("shooterWheel");
-        shooterHand = hardwareMap.get(Servo.class, "shooterHand");
+        intake = (DcMotorEx) hardwareMap.dcMotor.get("intake");
+        shooterDoor = hardwareMap.get(Servo.class, "shooterDoor");
+        kickUp = hardwareMap.get(Servo.class, "kickUp");
+        thirdBallKick = hardwareMap.get(Servo.class, "thirdBallKick");
         distanceSensor = hardwareMap.get(DistanceSensor.class, "rangeFront");
 
         leftAscend = (DcMotorEx) hardwareMap.dcMotor.get("leftAscend");
@@ -50,7 +54,7 @@ public abstract class Hardware extends LinearOpMode {
         // Initialize BHI260AP sensor
         imu = hardwareMap.get(BHI260IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                RevHubOrientationOnRobot.UsbFacingDirection.UP));
+                RevHubOrientationOnRobot.UsbFacingDirection.UP)); //Should be UP
 
         imu.initialize(parameters);
 
@@ -98,9 +102,6 @@ public abstract class Hardware extends LinearOpMode {
 //        wrist.setMode(RunMode.RUN_TO_POSITION);
 //    }
 //
-
-
-
 
 //    public void moveClaw(double position) {
 //        claw.setPosition(position);
@@ -180,7 +181,7 @@ public abstract class Hardware extends LinearOpMode {
 ////        telemetry.addData(name + ".getTargetPosition", targetPosition);
 //        String text =
 //                " position:" + armLeft.getCurrentPosition()
-    ////                + " target:" + armRight.getTargetPosition()
+////                + " target:" + armRight.getTargetPosition()
 //                        + " amp:" + armRight.getCurrent(CurrentUnit.AMPS) + ":" + armLeft.getCurrent(CurrentUnit.AMPS);
 //        //RobotLog.v(text);
 //        telemetry.addData("arm", text);
@@ -298,122 +299,100 @@ public abstract class Hardware extends LinearOpMode {
         shootTimer.reset();
     }
 
+    public void shootBallsWithEncoder(){
+        //Shoot one ball
+        shooterWheel.setVelocity(-1230);
+        kickUp.setPosition(0.32);
+        sleep(500);
 
-    //TODO: Check the values for the foot-down
-    public void shootOneBallWithEncoderBlueInside() {
-        // first cycle
-        sleep(30);
-        shooterHand.setPosition(0);      // down
-        sleep(200);
-        shooterHand.setPosition(0.5);    // up
-        sleep(300);
+        //Reset kick-up position and second ball
+        kickUp.setPosition(0.22);
+        intake.setPower(1.5); //TODO: CHECK DIRECTION
+        sleep(2000); //TODO: Include distance sensor?
+        kickUp.setPosition(0.32);
+        sleep(100);
 
-        // second cycle
-        sleep(150);
-        shooterHand.setPosition(0);      // down
-        sleep(200);
-        shooterHand.setPosition(0.5);    // up
-        sleep(300);
+        //Reset kick-up position and third ball
+        kickUp.setPosition(0.22);
+        thirdBallKick.setPosition(0.3);
+        intake.setPower(1.5); //TODO: CHECK DIRECTION
+        sleep(300); //TODO: Include distance sensor?
+        thirdBallKick.setPosition(0);
+        sleep(400);
+        thirdBallKick.setPosition(0.3);
+        sleep(400);
+        kickUp.setPosition(0.32);
+        sleep(500);
+    }
 
-        // second cycle
-        sleep(150);
-        shooterHand.setPosition(0);      // down
-        sleep(200);
-        shooterHand.setPosition(0.5);    // up
-        sleep(300);
 
-        // final rest position (down) and a little extra wait
-        shooterHand.setPosition(0.5);
+    public void shootOneBallWithEncoderBlueInside(){
+        shooterWheel.setVelocity(-1350);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(130);
+        shooterDoor.setPosition(0);
         sleep(500);
 
 
-
         shooterWheel.setVelocity(-1350);
-        shooterHand.setPosition(0);
-        sleep(300); //3500
-        shooterHand.setPosition(0.7);
-        sleep(300);
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(150);
+        shooterDoor.setPosition(0);
         sleep(500);
     }
 
     public void shootOneBallWithEncoderRedOutside(){
         shooterWheel.setVelocity(-1310);
-        shooterHand.setPosition(0);
-        sleep(300); //3500
-        shooterHand.setPosition(0.7);
-        sleep(300);
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(130);
+        shooterDoor.setPosition(0);
         sleep(500);
 
         //Second set of balls
         shooterWheel.setVelocity(-1310);
-        shooterHand.setPosition(0);
-        sleep(300); //3500
-        shooterHand.setPosition(0.7);
-        sleep(300);
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0);
+        sleep(3500); //3500
+        shooterDoor.setPosition(0.7);
+        sleep(150);
+        shooterDoor.setPosition(0);
         sleep(500);
     }
 
 
     public void changeMotifWithEncoder(){
         shooterWheel.setVelocity(-800); //800
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0);
         sleep(3500);
-        shooterHand.setPosition(0.7);
-        sleep(300);
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0.7);
+        sleep(250);
+        shooterDoor.setPosition(0);
         sleep(1000);
     }
 
     public void shootOneBallWithEncoderLastBlue(){
         shooterWheel.setVelocity(-1360);
-        shooterHand.setPosition(0);
-        sleep(300);
-        shooterHand.setPosition(0.7);
-        sleep(300);
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0);
+        sleep(3500);
+        shooterDoor.setPosition(0.7);
+        sleep(500);
+        shooterDoor.setPosition(0);
         sleep(1000);
     }
-
 
     public void shootOneBallWithEncoderLastRed(){
         shooterWheel.setVelocity(-1300);
-        shooterHand.setPosition(0);
-        sleep(300);
-        shooterHand.setPosition(0.7);
-        sleep(300);
-        shooterHand.setPosition(0);
+        shooterDoor.setPosition(0);
+        sleep(3500);
+        shooterDoor.setPosition(0.7);
+        sleep(500);
+        shooterDoor.setPosition(0);
         sleep(1000);
     }
-
-    public void shootThreeBallsGateStyle() {
-        // Ensure starting position: hand UP (blocking balls)
-        shooterHand.setPosition(0);   // adjust if your "up" is a different value
-        sleep(200);                     // small settle time
-
-        // Tunable timings and positions
-        double upPos = 0.0;             // gate closed / up
-        double downPos = 0.5;           // gate open / down
-        long tapTimeMs = 120;           // how long gate is open for one ball
-        long betweenBallsMs = 1000;      // pause between balls
-
-        // Repeat 3 times: open briefly for exactly one ball, then close
-        for (int i = 0; i < 3; i++) {
-            // Open gate quickly for one ball
-            shooterHand.setPosition(downPos);
-            sleep(tapTimeMs);
-
-            // Close gate to block the next ball
-            shooterHand.setPosition(upPos);
-            sleep(betweenBallsMs);
-        }
-
-        // End with hand UP (blocking)
-        shooterHand.setPosition(upPos);
-        sleep(200);
-    }
-
 
 }
