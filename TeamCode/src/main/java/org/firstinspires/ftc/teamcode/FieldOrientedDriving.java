@@ -199,9 +199,9 @@ public class FieldOrientedDriving extends Hardware {
 
             // Gamepad x kicks in the third ball
             if(gamepad2.x){
-                thirdBallKick.setPosition(0.0);
+                thirdBallKick.setPosition(0.5);
             } else {
-                thirdBallKick.setPosition(0.7);
+                thirdBallKick.setPosition(0.9);
             }
 
             // Gamepad a opens the door
